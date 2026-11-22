@@ -1,5 +1,5 @@
 
-function Navbar() {
+function Navbar({ user, onLogin, onLogout }) {
   return (
     <nav className="bg-white shadow-sm px-6 py-5">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
@@ -14,12 +14,27 @@ function Navbar() {
           <a href="#about">About</a>
         </div>
 
-        <a
-          href="#login"
-          className="bg-[#205C45] text-white px-5 py-2 rounded-lg"
-        >
-          Login
-        </a>
+        {user ? (
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:block text-sm text-gray-600">
+              {user.displayName || user.email}
+            </span>
+
+            <button
+              onClick={onLogout}
+              className="bg-[#205C45] text-white px-5 py-2 rounded-lg"
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={onLogin}
+            className="bg-[#205C45] text-white px-5 py-2 rounded-lg"
+          >
+            Login
+          </button>
+        )}
       </div>
     </nav>
   );

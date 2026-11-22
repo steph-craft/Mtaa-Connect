@@ -1,7 +1,7 @@
 
 function ServiceCard({ service, onBook }) {
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition">
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
       <img
         src={service.image}
         alt={service.name}
@@ -28,7 +28,7 @@ function ServiceCard({ service, onBook }) {
 
           <button
             onClick={() => onBook(service)}
-            className="bg-[#205C45] text-white px-4 py-2 rounded-lg hover:bg-[#174632]"
+            className="bg-[#205C45] text-white px-4 py-2 rounded-lg"
           >
             Book Now
           </button>

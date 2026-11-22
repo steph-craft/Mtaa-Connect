@@ -1,11 +1,11 @@
 
 import { useState } from "react";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-
 import { db } from "./services/firebase";
 import Navbar from "./components/Navbar";
 import ServiceCard from "./components/ServiceCard";
-import Footer from "./components/Footer";
+import { useAuth } from "./context/AuthContext"
+import AuthModal from "./components/AuthModal";
 
 const services = [
   {
@@ -14,7 +14,7 @@ const services = [
     category: "Cleaning",
     location: "Kilimani, Nairobi",
     price: 2500,
-    image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800",
+    image: "/House.jpeg",
   },
   {
     id: 2,
@@ -22,7 +22,7 @@ const services = [
     category: "Plumbing",
     location: "Westlands, Nairobi",
     price: 1800,
-    image: "https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?w=800",
+    image: "/plumbing.jpeg",
   },
   {
     id: 3,
@@ -30,15 +30,15 @@ const services = [
     category: "Photography",
     location: "Lavington, Nairobi",
     price: 5000,
-    image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=800",
+    image: "Photograph.jpeg",
   },
   {
     id: 4,
-    name: "Beauty Services",
-    category: "Beauty",
+    name: "Laundry Services",
+    category: "laundry",
     location: "Kileleshwa, Nairobi",
     price: 3000,
-    image: "https://images.unsplash.com/photo-1560066984-138dadb4c035?w=800",
+    image: "/laundry.jpeg",
   },
   {
     id: 5,
@@ -46,7 +46,7 @@ const services = [
     category: "Electrical",
     location: "Kasarani, Nairobi",
     price: 2000,
-    image: "https://images.unsplash.com/photo-1621905251918-48416bd8575a?w=800",
+    image: "/Eectrical.jpg",
   },
   {
     id: 6,
@@ -54,7 +54,7 @@ const services = [
     category: "Catering",
     location: "Roysambu, Nairobi",
     price: 4500,
-    image: "https://images.unsplash.com/photo-1555244162-803834f70033?w=800",
+    image: "/Outside-Catering.jpeg",
   },
 ];
 
@@ -63,12 +63,15 @@ const categories = [
   "Cleaning",
   "Plumbing",
   "Electrical",
-  "Beauty",
+  "Laundry",
   "Catering",
   "Photography",
 ];
 
 function App() {
+  const { user, logout } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
 
@@ -92,6 +95,11 @@ function App() {
   });
 
   function openBookingForm(service) {
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
+
     setSelectedService(service);
     setMessage("");
     setCustomerName("");
@@ -107,15 +115,19 @@ function App() {
   async function handleBooking(event) {
     event.preventDefault();
 
-    if (!selectedService) return;
+    if (!selectedService || !user) {
+      setShowAuthModal(true);
+      return;
+    }
 
     setLoading(true);
     setMessage("");
 
     try {
       await addDoc(collection(db, "bookings"), {
+        userId: user.uid,
         customerName,
-        customerEmail,
+        customerEmail: user.email,
         bookingDate,
         serviceId: selectedService.id,
         serviceName: selectedService.name,
@@ -123,6 +135,7 @@ function App() {
         price: selectedService.price,
         status: "Pending",
         createdAt: serverTimestamp(),
+  
       });
 
       setMessage("Your booking has been submitted successfully!");
@@ -140,7 +153,15 @@ function App() {
 
   return (
     <div className="min-h-screen bg-[#FAF7F0]">
-      <Navbar />
+      <Navbar
+        user={user}
+        onLogin={() => setShowAuthModal(true)}
+        onLogout={logout}
+      />
+
+      {showAuthModal && (
+        <AuthModal onClose={() => setShowAuthModal(false)} />
+      )}
 
       {/* HERO */}
       <section id="home" className="text-center px-6 py-20">
@@ -168,7 +189,7 @@ function App() {
                 behavior: "smooth",
               })
             }
-            className="bg-[#F4A261] text-[#205C45] px-8 py-4 rounded-lg font-bold"
+            className="bg-[#E08E45] text-[#205C45] px-8 py-4 rounded-lg font-bold"
           >
             Find Services
           </button>
@@ -191,7 +212,7 @@ function App() {
                   behavior: "smooth",
                 });
               }}
-              className={`p-5 rounded-xl shadow-sm font-semibold transition ${
+              className={`p-5 rounded-xl font-semibold transition ${
                 category === item
                   ? "bg-[#205C45] text-white"
                   : "bg-white text-gray-700 hover:bg-[#205C45] hover:text-white"
@@ -343,7 +364,7 @@ function App() {
         </p>
       </section>
 
-      <Footer />
+    
     </div>
   );
 }

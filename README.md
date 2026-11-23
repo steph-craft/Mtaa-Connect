@@ -65,9 +65,9 @@ Firebase JavaScript SDK connects the React application to Firebase services.
 
 MtaaConnect is configured for deployment using Vercel.
 
-Live Website: YOUR_VERC
+Live Website: https://mtaa-connect.vercel.app/
 
-GitHub Repository: YOUR_GITHUB_REPOSITORY_URL
+GitHub Repository: https://github.com/steph-craft/Mtaa-Connect.git
 
 The application is built using Vite and deployed through Vercel. GitHub integration allows changes pushed to the connected repository to trigger automatic deployments.
 

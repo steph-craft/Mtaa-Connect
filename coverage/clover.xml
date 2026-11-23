@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1795437241620" clover="3.2.0">
+  <project timestamp="1795437241620" name="All files">
+    <metrics statements="5" coveredstatements="3" conditionals="4" coveredconditionals="4" methods="4" coveredmethods="2" elements="13" coveredelements="9" complexity="0" loc="5" ncloc="5" packages="1" files="1" classes="1"/>
+    <file name="ServiceCard.jsx" path="/home/user/mtaaconnect/src/components/ServiceCard.jsx">
+      <metrics statements="5" coveredstatements="3" conditionals="4" coveredconditionals="4" methods="4" coveredmethods="2"/>
+      <line num="3" count="4" type="cond" truecount="2" falsecount="0"/>
+      <line num="5" count="4" type="stmt"/>
+      <line num="32" count="1" type="stmt"/>
+      <line num="42" count="0" type="stmt"/>
+      <line num="49" count="0" type="stmt"/>
+    </file>
+  </project>
+</coverage>

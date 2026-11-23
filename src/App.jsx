@@ -18,7 +18,6 @@ import ServiceCard from "./components/ServiceCard";
 import ServiceForm from "./components/ServiceForm";
 import AuthModal from "./components/AuthModal";
 
-
 const categories = [
   "All",
   "Cleaning",
@@ -275,7 +274,7 @@ async function handleDeleteService(service) {
 
       {/* SERVICES */}
       
-<section id="services" className="px-6 py-12 bg-white">
+<section id="services" className="px-6 py-12 ">
   <div className="max-w-7xl mx-auto">
 
     <div className="flex flex-wrap justify-between items-center gap-4 mb-8">

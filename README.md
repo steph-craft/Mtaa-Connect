@@ -1,20 +1,3 @@
-
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 # Mtaa-Connect
 
 ## Project Overview
@@ -41,5 +24,54 @@ Allow users to create accounts and securely log in.
 
 Provide a simple and user-friendly experience.
 
+## Technologies Used
+
+
+React.js - Building the user interface
+
+JavaScript for application functionality
+
+Vite to develop the environment
+
+Tailwind CSS for styling and ensuring the responsiveness
+
+Firebase Authentication enabled user registration and login
+
+Cloud Firestore for cloud database and data storage
+
+Context API Manages authentication state
+
+Vitest to test application components
+
+React Testing Library used in testing user interactions
+
+GitHub for version control and collaboration
+
+GitHub Actions ensured automated testing and builds
+
+Vercel to deploy the application.
+
+## API and Backend
+
+Firebase is used as the backend service.
+
+Firebase Authentication manages user accounts, login and logout.
+
+Cloud Firestore stores service listings and booking information.
+
+Firebase JavaScript SDK connects the React application to Firebase services.
+
+## Deployment
+
+MtaaConnect is configured for deployment using Vercel.
+
+Live Website: YOUR_VERC
+
+GitHub Repository: YOUR_GITHUB_REPOSITORY_URL
+
+The application is built using Vite and deployed through Vercel. GitHub integration allows changes pushed to the connected repository to trigger automatic deployments.
+
+
 ## Improvements
-Further development will include service management and testing.
+Further development will include adding service ratings and reviews, introduction of an online payment method and a booking status tracking.
+

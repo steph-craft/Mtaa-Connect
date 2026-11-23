@@ -1,62 +1,23 @@
+import { useEffect, useState } from "react";
 
-import { useState } from "react";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
+
 import { db } from "./services/firebase";
+import { useAuth } from "./context/AuthContext";
+
 import Navbar from "./components/Navbar";
 import ServiceCard from "./components/ServiceCard";
-import { useAuth } from "./context/AuthContext"
+import ServiceForm from "./components/ServiceForm";
 import AuthModal from "./components/AuthModal";
 
-const services = [
-  {
-    id: 1,
-    name: "Home Cleaning",
-    category: "Cleaning",
-    location: "Kilimani, Nairobi",
-    price: 2500,
-    image: "/House.jpeg",
-  },
-  {
-    id: 2,
-    name: "Plumbing Services",
-    category: "Plumbing",
-    location: "Westlands, Nairobi",
-    price: 1800,
-    image: "/plumbing.jpeg",
-  },
-  {
-    id: 3,
-    name: "Photography",
-    category: "Photography",
-    location: "Lavington, Nairobi",
-    price: 5000,
-    image: "Photograph.jpeg",
-  },
-  {
-    id: 4,
-    name: "Laundry Services",
-    category: "laundry",
-    location: "Kileleshwa, Nairobi",
-    price: 3000,
-    image: "/laundry.jpeg",
-  },
-  {
-    id: 5,
-    name: "Electrical Repairs",
-    category: "Electrical",
-    location: "Kasarani, Nairobi",
-    price: 2000,
-    image: "/Eectrical.jpg",
-  },
-  {
-    id: 6,
-    name: "Event Catering",
-    category: "Catering",
-    location: "Roysambu, Nairobi",
-    price: 4500,
-    image: "/Outside-Catering.jpeg",
-  },
-];
 
 const categories = [
   "All",
@@ -83,10 +44,17 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
+  const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
+  const [servicesError, setServicesError] = useState("");
+  const [showServiceForm, setShowServiceForm] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+  const [savingService, setSavingService] = useState(false);
+
   const filteredServices = services.filter((service) => {
     const matchesSearch =
-      service.name.toLowerCase().includes(search.toLowerCase()) ||
-      service.location.toLowerCase().includes(search.toLowerCase());
+      (service.name || "").toLowerCase().includes(search.toLowerCase()) ||
+      (service.location || "").toLowerCase().includes(search.toLowerCase());
 
     const matchesCategory =
       category === "All" || service.category === category;
@@ -102,8 +70,8 @@ function App() {
 
     setSelectedService(service);
     setMessage("");
-    setCustomerName("");
-    setCustomerEmail("");
+    setCustomerName(user.displayName || "");
+    setCustomerEmail(user.email || "");
     setBookingDate("");
   }
 
@@ -127,12 +95,12 @@ function App() {
       await addDoc(collection(db, "bookings"), {
         userId: user.uid,
         customerName,
-        customerEmail: user.email,
+        customerEmail: customerEmail || user.email,
         bookingDate,
         serviceId: selectedService.id,
         serviceName: selectedService.name,
         serviceLocation: selectedService.location,
-        price: selectedService.price,
+        price: Number(selectedService.price),
         status: "Pending",
         createdAt: serverTimestamp(),
   
@@ -150,7 +118,88 @@ function App() {
       setLoading(false);
     }
   }
+  useEffect(() => {
+  const unsubscribe = onSnapshot(
+    collection(db, "services"),
+    (snapshot) => {
+      const serviceData = snapshot.docs.map((item) => ({
+        id: item.id,
+        ...item.data(),
+      }));
 
+      setServices(serviceData);
+      setServicesLoading(false);
+      setServicesError("");
+    },
+    (error) => {
+      console.error("Error loading services:", error);
+      setServicesError("Could not load services. Please try again.");
+      setServicesLoading(false);
+    }
+  );
+
+  return () => unsubscribe();
+}, []);
+async function handleSaveService(serviceData) {
+  if (!user) {
+    setShowAuthModal(true);
+    return;
+  }
+
+  setSavingService(true);
+
+  try {
+    if (editingService) {
+      if (editingService.ownerId !== user.uid) {
+        alert("You can only edit services that you created.");
+        setSavingService(false);
+        return;
+      }
+
+      const serviceRef = doc(db, "services", editingService.id);
+
+      await updateDoc(serviceRef, {
+        ...serviceData,
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      await addDoc(collection(db, "services"), {
+        ...serviceData,
+        ownerId: user.uid,
+        createdAt: serverTimestamp(),
+      });
+    }
+
+    setShowServiceForm(false);
+    setEditingService(null);
+  } catch (error) {
+    console.error("Error saving service:", error);
+    alert("Could not save the service. Please try again.");
+  } finally {
+    setSavingService(false);
+  }
+}
+function handleEditService(service) {
+  if (!user || service.ownerId !== user.uid) return;
+  setEditingService(service);
+  setShowServiceForm(true);
+}
+async function handleDeleteService(service) {
+  if (!user || service.ownerId !== user.uid) return;
+
+  const confirmed = window.confirm(
+    `Are you sure you want to delete ${service.name}?`
+  );
+
+  if (!confirmed) return;
+
+  try {
+    await deleteDoc(doc(db, "services", service.id));
+  } catch (error) {
+    console.error("Error deleting service:", error);
+    alert("Could not delete this service. Please try again.");
+  }
+}
   return (
     <div className="min-h-screen bg-[#FAF7F0]">
       <Navbar
@@ -225,43 +274,87 @@ function App() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="px-6 py-12 bg-#205C45">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
-            <h2 className="text-2xl font-bold text-[#205C45]">
-              Available Services
-            </h2>
+      
+<section id="services" className="px-6 py-12 bg-white">
+  <div className="max-w-7xl mx-auto">
 
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="p-3 border rounded-lg bg-white"
-            >
-              {categories.map((item) => (
-                <option key={item} value={item}>
-                  {item}
-                </option>
-              ))}
-            </select>
-          </div>
+    <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
+      <h2 className="text-2xl font-bold text-[#205C45]">
+        Available Services
+      </h2>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredServices.map((service) => (
+      {user && (
+        <button
+          onClick={() => {
+            setEditingService(null);
+            setShowServiceForm(true);
+          }}
+          className="bg-[#F4A261] text-[#205C45] px-5 py-3 rounded-lg font-bold"
+        >
+          + Add a Service
+        </button>
+      )}
+    </div>
+
+    <div className="flex flex-wrap justify-between gap-4 mb-8">
+      <input
+        type="text"
+        placeholder="Search services or locations..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="p-3 border rounded-lg flex-1 min-w-[200px]"
+      />
+
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        className="p-3 border rounded-lg bg-white"
+      >
+        {categories.map((item) => (
+          <option key={item} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {servicesLoading && (
+      <p className="text-center py-10 text-gray-500">
+        Loading services...
+      </p>
+    )}
+
+    {servicesError && (
+      <p className="text-center py-10 text-red-600">
+        {servicesError}
+      </p>
+    )}
+
+    {!servicesLoading && !servicesError && (
+      <>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredServices.map((service) => (
               <ServiceCard
                 key={service.id}
                 service={service}
+                user={user}
                 onBook={openBookingForm}
+                onEdit={handleEditService}
+                onDelete={handleDeleteService}
               />
             ))}
-          </div>
-
-          {filteredServices.length === 0 && (
-            <p className="text-center text-gray-500 py-10">
-              No services found. Try another search.
-            </p>
-          )}
         </div>
-      </section>
+
+        {filteredServices.length === 0 && (
+          <p className="text-center text-gray-500 py-10">
+            No services found. Try another search or category.
+          </p>
+        )}
+      </>
+    )}
+  </div>
+</section>
+
 
       {/* BOOKING FORM */}
       {selectedService && (
@@ -286,7 +379,7 @@ function App() {
             </p>
 
             <p className="mb-5 text-[#205C45] font-bold">
-              Price: KSh {selectedService.price.toLocaleString()}
+              Price: KSh {Number(selectedService.price).toLocaleString()}
             </p>
 
             <form onSubmit={handleBooking} className="space-y-4">
@@ -364,7 +457,17 @@ function App() {
         </p>
       </section>
 
-    
+    {showServiceForm && (
+  <ServiceForm
+    service={editingService}
+    onSave={handleSaveService}
+    onClose={() => {
+      setShowServiceForm(false);
+      setEditingService(null);
+    }}
+    loading={savingService}
+  />
+)}
     </div>
   );
 }

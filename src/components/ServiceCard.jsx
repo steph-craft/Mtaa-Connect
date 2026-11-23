@@ -1,7 +1,9 @@
 
-function ServiceCard({ service, onBook }) {
+function ServiceCard({ service, user, onBook, onEdit, onDelete }) {
+  const isOwner = user && user.uid === service.ownerId;
+
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-lg transition">
       <img
         src={service.image}
         alt={service.name}
@@ -23,7 +25,7 @@ function ServiceCard({ service, onBook }) {
 
         <div className="flex justify-between items-center mt-4 gap-3">
           <p className="font-bold text-[#205C45]">
-            KSh {service.price.toLocaleString()}
+            KSh {Number(service.price).toLocaleString()}
           </p>
 
           <button
@@ -33,6 +35,24 @@ function ServiceCard({ service, onBook }) {
             Book Now
           </button>
         </div>
+
+        {isOwner && (
+          <div className="flex gap-3 mt-4 border-t pt-3">
+            <button
+              onClick={() => onEdit(service)}
+              className="text-sm text-[#205C45] font-semibold"
+            >
+              Edit
+            </button>
+
+            <button
+              onClick={() => onDelete(service)}
+              className="text-sm text-red-600 font-semibold"
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

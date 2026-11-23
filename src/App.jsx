@@ -225,7 +225,7 @@ function App() {
       </section>
 
       {/* SERVICES */}
-      <section id="services" className="px-6 py-12 bg-white">
+      <section id="services" className="px-6 py-12 bg-#205C45">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
             <h2 className="text-2xl font-bold text-[#205C45]">

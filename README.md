@@ -21,7 +21,7 @@ If you are developing a production application, we recommend using TypeScript wi
 
 MtaaConnect is a web application that connects customers with local service providers and small businesses around Nairobi, Kenya.
 
-The platform makes it easier for people to find services such as cleaning, plumbing, photography, beauty and catering in their local areas.
+The platform makes it easier for people to find services such as cleaning, plumbing, photography, laundry and catering in their local areas.
 
 ## Problem Statement
 
